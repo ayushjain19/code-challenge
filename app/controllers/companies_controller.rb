@@ -48,8 +48,20 @@ class CompaniesController < ApplicationController
 
   private
 
+  def handle_city_and_state(permitted_params)
+    zipcode_data = ZipCodes.identify(permitted_params["zip_code"])
+    if zipcode_data.nil?
+      permitted_params["city"] = nil
+      permitted_params["state"] = nil
+    else
+      permitted_params["city"] = zipcode_data[:city]
+      permitted_params["state"] = zipcode_data[:state_code]
+    end
+    permitted_params
+  end
+
   def company_params
-    params.require(:company).permit(
+    permitted_params = params.require(:company).permit(
       :name,
       :legal_name,
       :description,
@@ -58,6 +70,7 @@ class CompaniesController < ApplicationController
       :email,
       :owner_id,
     )
+    return handle_city_and_state(permitted_params)
   end
 
   def set_company

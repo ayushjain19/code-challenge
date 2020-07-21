@@ -12,11 +12,18 @@ class CompaniesController < ApplicationController
   def show
   end
 
+  def company_validation
+    if @company.errors.present? && @company.errors.messages[:email].present?
+      flash.now[:alert] = @company.errors.messages[:email][0]
+    end
+  end
+
   def create
     @company = Company.new(company_params)
     if @company.save
       redirect_to companies_path, notice: "Saved"
     else
+      company_validation
       render :new
     end
   end
@@ -28,6 +35,7 @@ class CompaniesController < ApplicationController
     if @company.update(company_params)
       redirect_to companies_path, notice: "Changes Saved"
     else
+      company_validation
       render :edit
     end
   end  
